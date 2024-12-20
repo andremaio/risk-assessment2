@@ -9,15 +9,15 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 # Configurações
-openai.api_key = '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'  
+openai.api_key = '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'
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'default_db_name'),
     'user': os.getenv('DB_USER', 'default_user'),
     'password': os.getenv('DB_PASSWORD', 'default_password'),
     'host': os.getenv('DB_HOST', 'localhost'),
-    'port': os.getenv('DB_PORT', 5432)  # Porta padrão é 5432
+    'port': int(os.getenv('DB_PORT', 5432))  # Porta padrão é 5432
 }
-SECRET_KEY = 'Amaio261@' 
+SECRET_KEY = 'Amaio261@'
 app = Flask(__name__)
 
 def token_required(f):
@@ -161,29 +161,4 @@ def analyze():
             """
             INSERT INTO individuals (
                 name, age, gender, nationality, previous_crimes,
-                sociological_factors, psychological_factors, cultural_factors,
-                individual_factors, criminal_factors, risk_score, ai_analysis
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                name, age, gender, nationality, previous_crimes,
-                sociological_factors, psychological_factors, cultural_factors,
-                individual_factors, criminal_factors, risk_score, ai_analysis
-            )
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return jsonify({
-            "name": name,
-            "risk_score": risk_score,
-            "ai_analysis": ai_analysis,
-            "status": "success"
-        })
-    except Exception as e:
-        return jsonify({"message": f"Erro inesperado: {str(e)}", "status": "error"})
-
-if __name__ == "__main__":
-    initialize_db()
-    app.run(debug=True)
+                

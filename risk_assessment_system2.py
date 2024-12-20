@@ -161,4 +161,32 @@ def analyze():
             """
             INSERT INTO individuals (
                 name, age, gender, nationality, previous_crimes,
+                sociological_factors, psychological_factors, cultural_factors,
+                individual_factors, criminal_factors, risk_score, ai_analysis
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                name, age, gender, nationality, previous_crimes,
+                sociological_factors, psychological_factors, cultural_factors,
+                individual_factors, criminal_factors, risk_score, ai_analysis
+            )
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "name": name,
+            "risk_score": risk_score,
+            "ai_analysis": ai_analysis,
+            "status": "success"
+        })
+    except Exception as e:
+        return jsonify({"message": f"Erro inesperado: {str(e)}", "status": "error"})
+
+if __name__ == "__main__":
+    initialize_db()
+    port = int(os.getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
                 

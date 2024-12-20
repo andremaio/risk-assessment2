@@ -11,11 +11,11 @@ from psycopg2.extras import RealDictCursor
 # Configurações
 openai.api_key = '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'  
 DB_CONFIG = {
-    'dbname': 'postgres',
-    'user': 'postgres',
-    'password': 'Amaio261',
-    'host': 'database-1.chc42w2uqsrr.eu-north-1.rds.amazonaws.com',
-    'port': 5432
+    'dbname': os.getenv('DB_NAME', 'default_db_name'),
+    'user': os.getenv('DB_USER', 'default_user'),
+    'password': os.getenv('DB_PASSWORD', 'default_password'),
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'port': os.getenv('DB_PORT', 5432)  # Porta padrão é 5432
 }
 SECRET_KEY = 'Amaio261@' 
 app = Flask(__name__)

@@ -1,17 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Aplicação Flask</title>
+    <title>Análise de Risco de Reincidência</title>
 </head>
 <body>
-    <h1>Bem-vindo à minha aplicação Flask!</h1>
-    <p>Teste os endpoints da API:</p>
-    <ul>
-        <li><a href="/login">Login</a> (POST somente via ferramenta como Postman)</li>
-        <li><a href="/analyze">Analyze</a> (POST somente via ferramenta como Postman)</li>
-    </ul>
+    <h1>Análise de Risco de Reincidência</h1>
+    <form method="POST" action="/">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="age">Idade:</label>
+        <input type="number" id="age" name="age" required><br>
+
+        <label for="gender">Género:</label>
+        <select id="gender" name="gender" required>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+        </select><br>
+
+        <label for="nationality">Nacionalidade:</label>
+        <input type="text" id="nationality" name="nationality" required><br>
+
+        <label for="previous_crimes">Crimes Anteriores:</label>
+        <input type="number" id="previous_crimes" name="previous_crimes" required><br>
+
+        <label for="sociological_factors">Fatores Sociológicos:</label>
+        <textarea id="sociological_factors" name="sociological_factors"></textarea><br>
+
+        <label for="psychological_factors">Fatores Psicológicos:</label>
+        <textarea id="psychological_factors" name="psychological_factors"></textarea><br>
+
+        <label for="cultural_factors">Fatores Culturais:</label>
+        <textarea id="cultural_factors" name="cultural_factors"></textarea><br>
+
+        <label for="individual_factors">Fatores Individuais:</label>
+        <textarea id="individual_factors" name="individual_factors"></textarea><br>
+
+        <label for="criminal_factors">Fatores Criminais:</label>
+        <textarea id="criminal_factors" name="criminal_factors"></textarea><br>
+
+        <button type="submit">Enviar</button>
+    </form>
 </body>
 </html>
 

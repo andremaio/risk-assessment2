@@ -1,38 +1,33 @@
-
 import os
 import psycopg2
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template
 from psycopg2.extras import RealDictCursor
 import openai
 from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY')  # Substitua por sua chave se necessário
+openai.api_key = os.getenv('OPENAI_API_KEY', 'sua_chave_openai')
 DB_CONFIG = {
-    'dbname': os.getenv('DB_NAME'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'host': os.getenv('DB_HOST'),
+    'dbname': os.getenv('DB_NAME', 'default_db_name'),
+    'user': os.getenv('DB_USER', 'default_user'),
+    'password': os.getenv('DB_PASSWORD', 'default_password'),
+    'host': os.getenv('DB_HOST', 'localhost'),
     'port': int(os.getenv('DB_PORT', 5432))
 }
 
 # Conexão com o banco de dados
 def get_db_connection():
-    try:
-        return psycopg2.connect(
-            dbname=DB_CONFIG['dbname'],
-            user=DB_CONFIG['user'],
-            password=DB_CONFIG['password'],
-            host=DB_CONFIG['host'],
-            port=DB_CONFIG['port'],
-            cursor_factory=RealDictCursor
-        )
-    except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
-        raise
+    return psycopg2.connect(
+        dbname=DB_CONFIG['dbname'],
+        user=DB_CONFIG['user'],
+        password=DB_CONFIG['password'],
+        host=DB_CONFIG['host'],
+        port=DB_CONFIG['port'],
+        cursor_factory=RealDictCursor
+    )
 
-# Gerar relatório PDF
+# Função para gerar o relatório PDF
 def generate_pdf(data, risk_score, analysis):
     pdf = FPDF()
     pdf.add_page()
@@ -50,41 +45,47 @@ def generate_pdf(data, risk_score, analysis):
     pdf.output(pdf_file)
     return pdf_file
 
-# Analisar risco com OpenAI
+# Função para análise de IA
 def analyze_with_ai(data):
     prompt = f"""
-    Avalie o risco de reincidência criminal para:
+    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
     - Nome: {data['name']}
     - Idade: {data['age']}
     - Gênero: {data['gender']}
     - Crimes Anteriores: {data['previous_crimes']}
-    Outros fatores: {data.get('sociological_factors', 'Não fornecido')}
-    """
-    try:
-        response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt=prompt,
-            max_tokens=500
-        )
-        return response.choices[0].text.strip()
-    except Exception as e:
-        return f"Erro com a API OpenAI: {str(e)}"
+    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
+    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
+    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
+    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
 
-@app.route("/")
+    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
+    """
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt,
+        max_tokens=500
+    )
+    return response.choices[0].text.strip()
+
+@app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
-
-@app.route("/form")
-def form():
-    return render_template("form.html")
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
-        data = request.json
+        # Carregar dados da requisição JSON
+        data = request.get_json()
+        if not data:
+            return jsonify({"message": "Nenhum dado fornecido."}), 400
+
+        # Análise com IA
         analysis = analyze_with_ai(data)
-        risk_score = 50  # Exemplo de cálculo
+        risk_score = 50  # Exemplo de pontuação fixa (ajustável conforme necessário)
+
+        # Gerar PDF
         pdf_file = generate_pdf(data, risk_score, analysis)
+
         return jsonify({
             "name": data['name'],
             "risk_score": risk_score,
@@ -92,8 +93,8 @@ def analyze():
             "pdf_report": pdf_file
         })
     except Exception as e:
-        return jsonify({"message": f"Erro inesperado: {str(e)}"})
+        return jsonify({"message": f"Erro inesperado: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)

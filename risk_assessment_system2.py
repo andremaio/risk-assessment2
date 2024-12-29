@@ -1,3 +1,4 @@
+
 import os
 import psycopg2
 from flask import Flask, request, jsonify, render_template, send_file
@@ -7,7 +8,7 @@ from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('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')
+openai.api_key = os.getenv('OPENAI_API_KEY')  # Substitua por sua chave se necessário
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME'),
     'user': os.getenv('DB_USER'),
@@ -16,16 +17,22 @@ DB_CONFIG = {
     'port': int(os.getenv('DB_PORT', 5432))
 }
 
+# Conexão com o banco de dados
 def get_db_connection():
-    return psycopg2.connect(
-        dbname=DB_CONFIG['dbname'],
-        user=DB_CONFIG['user'],
-        password=DB_CONFIG['password'],
-        host=DB_CONFIG['host'],
-        port=DB_CONFIG['port'],
-        cursor_factory=RealDictCursor
-    )
+    try:
+        return psycopg2.connect(
+            dbname=DB_CONFIG['dbname'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            host=DB_CONFIG['host'],
+            port=DB_CONFIG['port'],
+            cursor_factory=RealDictCursor
+        )
+    except Exception as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        raise
 
+# Gerar relatório PDF
 def generate_pdf(data, risk_score, analysis):
     pdf = FPDF()
     pdf.add_page()
@@ -43,6 +50,7 @@ def generate_pdf(data, risk_score, analysis):
     pdf.output(pdf_file)
     return pdf_file
 
+# Analisar risco com OpenAI
 def analyze_with_ai(data):
     prompt = f"""
     Avalie o risco de reincidência criminal para:
@@ -66,12 +74,16 @@ def analyze_with_ai(data):
 def index():
     return render_template("index.html")
 
+@app.route("/form")
+def form():
+    return render_template("form.html")
+
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
         data = request.json
         analysis = analyze_with_ai(data)
-        risk_score = 50  # Simula um cálculo mais complexo
+        risk_score = 50  # Exemplo de cálculo
         pdf_file = generate_pdf(data, risk_score, analysis)
         return jsonify({
             "name": data['name'],
@@ -84,4 +96,4 @@ def analyze():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

@@ -7,7 +7,7 @@ from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY', 'sua_chave_openai')
+openai.api_key = os.getenv('OPENAI_API_KEY', 'sua-chave-openai')
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'default_db_name'),
     'user': os.getenv('DB_USER', 'default_user'),
@@ -27,7 +27,7 @@ def get_db_connection():
         cursor_factory=RealDictCursor
     )
 
-# Função para gerar o relatório PDF
+# Função para gerar relatório PDF
 def generate_pdf(data, risk_score, analysis):
     pdf = FPDF()
     pdf.add_page()
@@ -37,10 +37,10 @@ def generate_pdf(data, risk_score, analysis):
     pdf.ln(10)
     pdf.cell(200, 10, f"Nome: {data['name']}", ln=True)
     pdf.cell(200, 10, f"Idade: {data['age']}", ln=True)
-    pdf.cell(200, 10, f"Gênero: {data['gender']}", ln=True)
-    pdf.cell(200, 10, f"Risco Calculado: {risk_score}", ln=True)
+    pdf.cell(200, 10, f"Género: {data['gender']}", ln=True)
+    pdf.cell(200, 10, f"Pontuação de Risco: {risk_score}", ln=True)
     pdf.ln(10)
-    pdf.multi_cell(0, 10, f"Análise detalhada:\n{analysis}")
+    pdf.multi_cell(0, 10, f"Análise:\n{analysis}")
     pdf_file = f"relatorio_{data['name']}.pdf"
     pdf.output(pdf_file)
     return pdf_file
@@ -48,17 +48,17 @@ def generate_pdf(data, risk_score, analysis):
 # Função para análise de IA
 def analyze_with_ai(data):
     prompt = f"""
-    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
+    Baseado nos fatores fornecidos, analise o risco de reincidência:
     - Nome: {data['name']}
     - Idade: {data['age']}
-    - Gênero: {data['gender']}
+    - Género: {data['gender']}
     - Crimes Anteriores: {data['previous_crimes']}
     - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
     - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
     - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
-    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
+    - Fatores Criminais: {data.get('criminal_factors', 'Não fornecido')}
 
-    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
+    Forneça uma pontuação de risco entre 0 e 100 e explique os motivos.
     """
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -73,27 +73,29 @@ def index():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
+    if not request.is_json:
+        return jsonify({"message": "Formato de dados inválido. Use 'application/json'."}), 415
     try:
-        # Carregar dados da requisição JSON
         data = request.get_json()
         if not data:
-            return jsonify({"message": "Nenhum dado fornecido."}), 400
-
-        # Análise com IA
+            return jsonify({"message": "Dados não fornecidos.", "status": "error"})
+        
+        # Análise de IA
         analysis = analyze_with_ai(data)
-        risk_score = 50  # Exemplo de pontuação fixa (ajustável conforme necessário)
-
+        risk_score = 50  # Substitua com lógica de pontuação real
+        
         # Gerar PDF
         pdf_file = generate_pdf(data, risk_score, analysis)
-
+        
         return jsonify({
             "name": data['name'],
             "risk_score": risk_score,
             "ai_analysis": analysis,
-            "pdf_report": pdf_file
+            "pdf_report": pdf_file,
+            "status": "success"
         })
     except Exception as e:
-        return jsonify({"message": f"Erro inesperado: {str(e)}"}), 500
+        return jsonify({"message": f"Erro inesperado: {str(e)}", "status": "error"}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

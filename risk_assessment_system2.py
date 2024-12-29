@@ -1,6 +1,6 @@
 import os
 import psycopg2
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from psycopg2.extras import RealDictCursor
 import openai
 import jwt
@@ -10,7 +10,7 @@ from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('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')  
+openai.api_key = os.getenv('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') 
 SECRET_KEY = os.getenv('SECRET_KEY', 'minha_chave_secreta')
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'default_db_name'),
@@ -45,24 +45,6 @@ def get_db_connection():
         cursor_factory=RealDictCursor
     )
 
-# Função para gerar o relatório PDF
-def generate_pdf(data, risk_score, analysis):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font('Arial', 'B', 16)
-    pdf.cell(200, 10, "Relatório de Risco de Reincidência Criminal", ln=True, align='C')
-    pdf.set_font('Arial', '', 12)
-    pdf.ln(10)
-    pdf.cell(200, 10, f"Nome: {data['name']}", ln=True)
-    pdf.cell(200, 10, f"Idade: {data['age']}", ln=True)
-    pdf.cell(200, 10, f"Género: {data['gender']}", ln=True)
-    pdf.cell(200, 10, f"Risco Calculado: {risk_score}", ln=True)
-    pdf.ln(10)
-    pdf.multi_cell(0, 10, f"Análise detalhada:\n{analysis}")
-    pdf_file = f"relatorio_{data['name']}.pdf"
-    pdf.output(pdf_file)
-    return pdf_file
-
 # Função para análise de IA
 def analyze_with_ai(data):
     prompt = f"""
@@ -86,33 +68,41 @@ def analyze_with_ai(data):
     )
     return response.choices[0].text.strip()
 
+# Rotas
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
 
-@app.route("/analyze", methods=["POST"])
-@token_required
+@app.route("/input", methods=["GET", "POST"])
+def input():
+    if request.method == "POST":
+        data = {
+            'name': request.form['name'],
+            'age': request.form['age'],
+            'gender': request.form['gender'],
+            'previous_crimes': request.form['previous_crimes'],
+            'sociological_factors': request.form.get('sociological_factors', ''),
+            'psychological_factors': request.form.get('psychological_factors', ''),
+            'cultural_factors': request.form.get('cultural_factors', ''),
+            'individual_factors': request.form.get('individual_factors', ''),
+            'criminal_factors': request.form.get('criminal_factors', '')
+        }
+        return redirect(url_for('analyze', **data))
+    return render_template("input.html")
+
+@app.route("/analyze", methods=["GET"])
 def analyze():
     try:
-        data = request.json
-        if not data:
-            return jsonify({"message": "Dados não fornecidos.", "status": "error"})
-        
+        data = request.args.to_dict()
         analysis = analyze_with_ai(data)
         risk_score = 50  # Simula um cálculo mais complexo (ajustável)
-        
-        # Gerar PDF
-        pdf_file = generate_pdf(data, risk_score, analysis)
-        
-        return jsonify({
-            "name": data['name'],
-            "risk_score": risk_score,
-            "ai_analysis": analysis,
-            "pdf_report": pdf_file,
-            "status": "success"
-        })
+        return render_template("result.html", name=data['name'], risk_score=risk_score, ai_analysis=analysis)
     except Exception as e:
         return jsonify({"message": f"Erro inesperado: {str(e)}", "status": "error"})
+
+@app.route("/generate_report", methods=["GET"])
+def generate_report():
+    return render_template("report.html")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

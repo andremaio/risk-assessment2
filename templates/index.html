@@ -1,46 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Análise de Risco de Reincidência</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo à Avaliação de Risco</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Análise de Risco de Reincidência</h1>
-    <form method="POST" action="/">
-        <label for="name">Nome:</label>
-        <input type="text" id="name" name="name" required><br>
+    <div class="container">
+        <h1>Bem-vindo à Avaliação de Risco</h1>
+        <p>Este sistema ajuda a analisar o risco de reincidência criminal com base em fatores sociológicos, psicológicos, culturais e individuais.</p>
 
-        <label for="age">Idade:</label>
-        <input type="number" id="age" name="age" required><br>
-
-        <label for="gender">Género:</label>
-        <select id="gender" name="gender" required>
-            <option value="Masculino">Masculino</option>
-            <option value="Feminino">Feminino</option>
-        </select><br>
-
-        <label for="nationality">Nacionalidade:</label>
-        <input type="text" id="nationality" name="nationality" required><br>
-
-        <label for="previous_crimes">Crimes Anteriores:</label>
-        <input type="number" id="previous_crimes" name="previous_crimes" required><br>
-
-        <label for="sociological_factors">Fatores Sociológicos:</label>
-        <textarea id="sociological_factors" name="sociological_factors"></textarea><br>
-
-        <label for="psychological_factors">Fatores Psicológicos:</label>
-        <textarea id="psychological_factors" name="psychological_factors"></textarea><br>
-
-        <label for="cultural_factors">Fatores Culturais:</label>
-        <textarea id="cultural_factors" name="cultural_factors"></textarea><br>
-
-        <label for="individual_factors">Fatores Individuais:</label>
-        <textarea id="individual_factors" name="individual_factors"></textarea><br>
-
-        <label for="criminal_factors">Fatores Criminais:</label>
-        <textarea id="criminal_factors" name="criminal_factors"></textarea><br>
-
-        <button type="submit">Enviar</button>
-    </form>
+        <a href="/form" class="btn">Inserir Dados para Análise</a>
+        <a href="/report" class="btn">Gerar Relatório</a>
+    </div>
 </body>
 </html>
-

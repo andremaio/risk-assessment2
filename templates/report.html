@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Relatório de Análise</h1>
+            <p>Gerado automaticamente pela aplicação.</p>
+        </div>
+
+        <h3>Detalhes do Indivíduo</h3>
+        <p><strong>Nome:</strong> {{ name }}</p>
+        <p><strong>Idade:</strong> {{ age }}</p>
+        <p><strong>Gênero:</strong> {{ gender }}</p>
+        <p><strong>Nacionalidade:</strong> {{ nationality }}</p>
+        <p><strong>Crimes Anteriores:</strong> {{ previous_crimes }}</p>
+
+        <h3>Fatores Considerados</h3>
+        <p><strong>Fatores Sociológicos:</strong> {{ sociological_factors }}</p>
+        <p><strong>Fatores Psicológicos:</strong> {{ psychological_factors }}</p>
+        <p><strong>Fatores Culturais:</strong> {{ cultural_factors }}</p>
+        <p><strong>Fatores Individuais:</strong> {{ individual_factors }}</p>
+        <p><strong>Fatores Criminais:</strong> {{ criminal_factors }}</p>
+
+        <h3>Análise de Risco</h3>
+        <p><strong>Pontuação de Risco:</strong> {{ risk_score }}</p>
+        <p><strong>Análise da IA:</strong></p>
+        <div class="alert alert-secondary">{{ ai_analysis }}</div>
+
+        <h3>Justificativa do Risco</h3>
+        <p>A análise acima foi baseada nos dados inseridos e no modelo de IA treinado com estudos de Montreal, que considera diversos fatores de risco e prevenção. Cada fator é ponderado de acordo com seu impacto estatístico e individual na reincidência criminal.</p>
+
+        <a href="/" class="btn btn-primary">Voltar à Página Inicial</a>
+    </div>
+</body>
+</html>

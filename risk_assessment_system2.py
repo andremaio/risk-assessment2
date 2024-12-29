@@ -8,7 +8,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 # Configurações
-openai.api_key = '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'
+openai.api_key = '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'
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME'),
     'user': os.getenv('DB_USER'),

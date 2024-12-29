@@ -1,9 +1,4 @@
 flask
-jinja2
-jwt
-gunicorn
-openai
 psycopg2-binary
+openai
 fpdf
-python-dotenv
-requests

@@ -3,53 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Relatório Final</title>
     <style>
         body {
-            background-color: #ffffff;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
         }
-        .container {
-            margin-top: 50px;
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        main {
             padding: 20px;
         }
-        .header {
+        .container {
+            background-color: white;
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 800px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        p {
+            line-height: 1.6;
+            color: #555;
+        }
+        footer {
             text-align: center;
-            margin-bottom: 40px;
+            margin-top: 20px;
+            padding: 10px 0;
+            color: #777;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Relatório de Análise</h1>
-            <p>Gerado automaticamente pela aplicação.</p>
+    <header>
+        <h1>Relatório Final de Risco de Reincidência</h1>
+    </header>
+    <main>
+        <div class="container">
+            <div class="section">
+                <h2>Resumo do Relatório</h2>
+                <p>Nome: {{ name }}</p>
+                <p>Idade: {{ age }}</p>
+                <p>Género: {{ gender }}</p>
+                <p>Nacionalidade: {{ nationality }}</p>
+                <p>Crimes Anteriores: {{ previous_crimes }}</p>
+            </div>
+            <div class="section">
+                <h2>Análise Detalhada</h2>
+                <p>{{ ai_analysis }}</p>
+            </div>
+            <div class="section">
+                <h2>Pontuação de Risco</h2>
+                <p>A pontuação de risco atribuída ao indivíduo foi: <strong>{{ risk_score }}</strong></p>
+            </div>
+            <div class="section">
+                <h2>Justificação</h2>
+                <p>A pontuação foi determinada com base nos seguintes fatores:</p>
+                <ul>
+                    <li>Fatores Sociológicos: {{ sociological_factors }}</li>
+                    <li>Fatores Psicológicos: {{ psychological_factors }}</li>
+                    <li>Fatores Culturais: {{ cultural_factors }}</li>
+                    <li>Fatores Individuais: {{ individual_factors }}</li>
+                    <li>Fatores Criminais: {{ criminal_factors }}</li>
+                </ul>
+            </div>
         </div>
-
-        <h3>Detalhes do Indivíduo</h3>
-        <p><strong>Nome:</strong> {{ name }}</p>
-        <p><strong>Idade:</strong> {{ age }}</p>
-        <p><strong>Gênero:</strong> {{ gender }}</p>
-        <p><strong>Nacionalidade:</strong> {{ nationality }}</p>
-        <p><strong>Crimes Anteriores:</strong> {{ previous_crimes }}</p>
-
-        <h3>Fatores Considerados</h3>
-        <p><strong>Fatores Sociológicos:</strong> {{ sociological_factors }}</p>
-        <p><strong>Fatores Psicológicos:</strong> {{ psychological_factors }}</p>
-        <p><strong>Fatores Culturais:</strong> {{ cultural_factors }}</p>
-        <p><strong>Fatores Individuais:</strong> {{ individual_factors }}</p>
-        <p><strong>Fatores Criminais:</strong> {{ criminal_factors }}</p>
-
-        <h3>Análise de Risco</h3>
-        <p><strong>Pontuação de Risco:</strong> {{ risk_score }}</p>
-        <p><strong>Análise da IA:</strong></p>
-        <div class="alert alert-secondary">{{ ai_analysis }}</div>
-
-        <h3>Justificativa do Risco</h3>
-        <p>A análise acima foi baseada nos dados inseridos e no modelo de IA treinado com estudos de Montreal, que considera diversos fatores de risco e prevenção. Cada fator é ponderado de acordo com seu impacto estatístico e individual na reincidência criminal.</p>
-
-        <a href="/" class="btn btn-primary">Voltar à Página Inicial</a>
-    </div>
+    </main>
+    <footer>
+        <p>Este relatório foi gerado automaticamente com base nos dados fornecidos.</p>
+    </footer>
 </body>
 </html>

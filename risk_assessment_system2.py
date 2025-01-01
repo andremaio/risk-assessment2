@@ -37,7 +37,7 @@ def generate_pdf(data, risk_score, analysis):
     pdf.ln(10)
     pdf.cell(200, 10, f"Nome: {data['name']}", ln=True)
     pdf.cell(200, 10, f"Idade: {data['age']}", ln=True)
-    pdf.cell(200, 10, f"Género: {data['gender']}", ln=True)
+    pdf.cell(200, 10, f"Gênero: {data['gender']}", ln=True)
     pdf.cell(200, 10, f"Risco Calculado: {risk_score}", ln=True)
     pdf.ln(10)
     pdf.multi_cell(0, 10, f"Análise detalhada:\n{analysis}")
@@ -48,20 +48,26 @@ def generate_pdf(data, risk_score, analysis):
 # Função para análise de IA
 def analyze_with_ai(data):
     prompt = f"""
-    Baseado nos estudos de Montreal sobre fatores que influenciam o risco de reincidência criminal, analise:
+    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
     - Nome: {data['name']}
     - Idade: {data['age']}
-    - Género: {data['gender']}
-    - Crimes Anteriores: {data.get('previous_crimes', 'Não fornecido')}
+    - Gênero: {data['gender']}
+    - Crimes Anteriores: {data['previous_crimes']}
     - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
-    Gere uma pontuação de risco entre 0 e 100 e explique os fatores que contribuíram para essa pontuação.
+    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
+    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
+    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
+
+    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
     """
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=prompt,
-        max_tokens=500
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "Você é um especialista em análise de risco criminal."},
+            {"role": "user", "content": prompt}
+        ]
     )
-    return response.choices[0].text.strip()
+    return response['choices'][0]['message']['content']
 
 @app.route("/", methods=["GET"])
 def index():
@@ -70,26 +76,27 @@ def index():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
-        data = request.get_json()  # Certifique-se de que os dados recebidos são JSON
+        # Carregar dados da requisição JSON
+        data = request.get_json()
         if not data:
-            return jsonify({"message": "Dados não fornecidos.", "status": "error"})
-        
+            return jsonify({"message": "Nenhum dado fornecido."}), 400
+
+        # Análise com IA
         analysis = analyze_with_ai(data)
-        risk_score = 50  # Simula um cálculo mais complexo (ajustável)
-        
+        risk_score = 50  # Exemplo de pontuação fixa (ajustável conforme necessário)
+
         # Gerar PDF
         pdf_file = generate_pdf(data, risk_score, analysis)
-        
+
         return jsonify({
             "name": data['name'],
             "risk_score": risk_score,
             "ai_analysis": analysis,
-            "pdf_report": pdf_file,
-            "status": "success"
+            "pdf_report": pdf_file
         })
     except Exception as e:
-        return jsonify({"message": f"Erro inesperado: {str(e)}", "status": "error"})
+        return jsonify({"message": f"Erro inesperado: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port)

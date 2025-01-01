@@ -47,16 +47,22 @@ def generate_pdf(data, risk_score, analysis):
 
 # Função para análise de IA
 def analyze_with_ai(data):
+    previous_crimes = data.get('previous_crimes', 'Não informado')
+    sociological_factors = data.get('sociological_factors', 'Não fornecido')
+    psychological_factors = data.get('psychological_factors', 'Não fornecido')
+    cultural_factors = data.get('cultural_factors', 'Não fornecido')
+    individual_factors = data.get('individual_factors', 'Não fornecido')
+
     prompt = f"""
     Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
     - Nome: {data['name']}
     - Idade: {data['age']}
     - Gênero: {data['gender']}
-    - Crimes Anteriores: {data['previous_crimes']}
-    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
-    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
-    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
-    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
+    - Crimes Anteriores: {previous_crimes}
+    - Fatores Sociológicos: {sociological_factors}
+    - Fatores Psicológicos: {psychological_factors}
+    - Fatores Culturais: {cultural_factors}
+    - Fatores Individuais: {individual_factors}
 
     Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
     """

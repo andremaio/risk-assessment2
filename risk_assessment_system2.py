@@ -1,13 +1,14 @@
 import os
 import psycopg2
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from psycopg2.extras import RealDictCursor
 import openai
 from fpdf import FPDF
+from io import BytesIO
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY', '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')
+openai.api_key = os.getenv('OPENAI_API_KEY')
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'default_db_name'),
     'user': os.getenv('DB_USER', 'default_user'),
@@ -41,9 +42,12 @@ def generate_pdf(data, risk_score, analysis):
     pdf.cell(200, 10, f"Risco Calculado: {risk_score}", ln=True)
     pdf.ln(10)
     pdf.multi_cell(0, 10, f"Análise detalhada:\n{analysis}")
-    pdf_file = f"relatorio_{data['name']}.pdf"
-    pdf.output(pdf_file)
-    return pdf_file
+
+    # Salvar em bytes
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+    return pdf_output
 
 # Função para análise de IA
 def analyze_with_ai(data):
@@ -94,12 +98,11 @@ def analyze():
         # Gerar PDF
         pdf_file = generate_pdf(data, risk_score, analysis)
 
-        return jsonify({
-            "name": data['name'],
-            "risk_score": risk_score,
-            "ai_analysis": analysis,
-            "pdf_report": pdf_file
-        })
+        return send_file(
+            pdf_file,
+            download_name=f"relatorio_{data['name']}.pdf",
+            as_attachment=True
+        )
     except Exception as e:
         return jsonify({"message": f"Erro inesperado: {str(e)}"}), 500
 

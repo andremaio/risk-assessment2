@@ -1,4 +1,5 @@
-flask
-psycopg2-binary
-openai
-fpdf
+Flask>=2.0.0
+psycopg2-binary>=2.9.0
+fpdf>=1.7.2
+openai>=0.27.0
+gunicorn>=20.0.4

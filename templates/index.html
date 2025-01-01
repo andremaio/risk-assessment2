@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,53 @@
 </head>
 <body>
     <h1>Bem-vindo à Avaliação de Risco</h1>
-    <form action="/analyze" method="POST">
-        <button type="submit">Analisar</button>
+
+    <form id="dataForm">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="age">Idade:</label>
+        <input type="number" id="age" name="age" required><br><br>
+
+        <label for="gender">Género:</label>
+        <input type="text" id="gender" name="gender" required><br><br>
+
+        <!-- Adicione outros campos conforme necessário -->
+
+        <button type="submit">Enviar Dados</button>
     </form>
+
+    <script>
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Previne o envio tradicional do form
+
+            // Coleta os dados do formulário
+            const formData = {
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+            };
+
+            // Envia os dados para o backend via API POST
+            fetch('https://risk-assessment2.onrender.com/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-token': 'YOUR_TOKEN_HERE'  // Substitua pelo token correto
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Exibe o resultado ou o relatório
+                console.log(data);
+                alert('Análise de risco completa! Confira os resultados.');
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar dados.');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliação de Risco</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Bem-vindo à Avaliação de Risco</h1>
@@ -18,10 +30,16 @@
         <label for="gender">Género:</label>
         <input type="text" id="gender" name="gender" required><br><br>
 
-        <!-- Adicione outros campos conforme necessário -->
-
         <button type="submit">Enviar Dados</button>
     </form>
+
+    <div id="result">
+        <h3>Resultado da Análise:</h3>
+        <p><strong>Nome:</strong> <span id="resultName"></span></p>
+        <p><strong>Risco Calculado:</strong> <span id="resultRisk"></span></p>
+        <p><strong>Análise Detalhada:</strong></p>
+        <p id="resultAnalysis"></p>
+    </div>
 
     <script>
         document.getElementById('dataForm').addEventListener('submit', function(event) {
@@ -35,19 +53,24 @@
             };
 
             // Envia os dados para o backend via API POST
-            fetch('https://risk-assessment2.onrender.com/analyze', {
+            fetch('/analyze', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'x-access-token': 'YOUR_TOKEN_HERE'  // Substitua pelo token correto
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
-                // Exibe o resultado ou o relatório
-                console.log(data);
-                alert('Análise de risco completa! Confira os resultados.');
+                if (data.status === "success") {
+                    // Exibe os resultados na página
+                    document.getElementById('resultName').textContent = data.name;
+                    document.getElementById('resultRisk').textContent = data.risk_score;
+                    document.getElementById('resultAnalysis').textContent = data.ai_analysis;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('Erro: ' + data.message);
+                }
             })
             .catch(error => {
                 console.error('Erro:', error);

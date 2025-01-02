@@ -5,4 +5,4 @@ fpdf==1.7.2
 transformers
 gunicorn==20.1.0
 torch
-tensorflow
+tensorflow-cpu==2.12.0

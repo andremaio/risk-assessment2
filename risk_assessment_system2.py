@@ -1,4 +1,5 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import psycopg2
 from flask import Flask, request, jsonify, render_template
 from psycopg2.extras import RealDictCursor

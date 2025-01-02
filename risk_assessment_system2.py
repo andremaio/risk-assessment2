@@ -2,12 +2,11 @@ import os
 import psycopg2
 from flask import Flask, request, jsonify, render_template
 from psycopg2.extras import RealDictCursor
-import openai
+from transformers import pipeline
 from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY')
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'default_db_name'),
     'user': os.getenv('DB_USER', 'default_user'),
@@ -15,6 +14,10 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': int(os.getenv('DB_PORT', 5432))
 }
+
+# Carregar modelo da Hugging Face
+model_name = "distilbert-base-uncased"  # Substitua por outro modelo, se necessário
+text_generator = pipeline("text-generation", model=model_name)
 
 # Conexão com o banco de dados
 def get_db_connection():
@@ -47,34 +50,21 @@ def generate_pdf(data, risk_score, analysis):
 
 # Função para análise de IA
 def analyze_with_ai(data):
-    previous_crimes = data.get('previous_crimes', 'Não informado')
-    sociological_factors = data.get('sociological_factors', 'Não fornecido')
-    psychological_factors = data.get('psychological_factors', 'Não fornecido')
-    cultural_factors = data.get('cultural_factors', 'Não fornecido')
-    individual_factors = data.get('individual_factors', 'Não fornecido')
-
-    messages = [
-        {"role": "system", "content": "Você é um especialista em análise de risco criminal."},
-        {"role": "user", "content": f"""
-        Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
-        - Nome: {data['name']}
-        - Idade: {data['age']}
-        - Gênero: {data['gender']}
-        - Crimes Anteriores: {previous_crimes}
-        - Fatores Sociológicos: {sociological_factors}
-        - Fatores Psicológicos: {psychological_factors}
-        - Fatores Culturais: {cultural_factors}
-        - Fatores Individuais: {individual_factors}
-
-        Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
-        """}
-    ]
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages
-    )
-    return response['choices'][0]['message']['content']
+    prompt = f"""
+    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
+    - Nome: {data['name']}
+    - Idade: {data['age']}
+    - Gênero: {data['gender']}
+    - Crimes Anteriores: {data.get('previous_crimes', 'Não informado')}
+    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
+    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
+    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
+    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
+    
+    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
+    """
+    response = text_generator(prompt, max_length=500)
+    return response[0]['generated_text']
 
 @app.route("/", methods=["GET"])
 def index():

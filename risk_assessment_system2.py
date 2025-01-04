@@ -1,10 +1,8 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import psycopg2
 from flask import Flask, request, jsonify, render_template
 from psycopg2.extras import RealDictCursor
 from transformers import pipeline
-from fpdf import FPDF
 
 # Configurações
 app = Flask(__name__)
@@ -15,10 +13,6 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': int(os.getenv('DB_PORT', 5432))
 }
-
-# Carregar modelo da Hugging Face
-model_name = "distilbert-base-uncased"  # Substitua por outro modelo, se necessário
-text_generator = pipeline("text-generation", model=model_name)
 
 # Conexão com o banco de dados
 def get_db_connection():
@@ -31,41 +25,17 @@ def get_db_connection():
         cursor_factory=RealDictCursor
     )
 
-# Função para gerar o relatório PDF
-def generate_pdf(data, risk_score, analysis):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font('Arial', 'B', 16)
-    pdf.cell(200, 10, "Relatório de Risco de Reincidência Criminal", ln=True, align='C')
-    pdf.set_font('Arial', '', 12)
-    pdf.ln(10)
-    pdf.cell(200, 10, f"Nome: {data['name']}", ln=True)
-    pdf.cell(200, 10, f"Idade: {data['age']}", ln=True)
-    pdf.cell(200, 10, f"Gênero: {data['gender']}", ln=True)
-    pdf.cell(200, 10, f"Risco Calculado: {risk_score}", ln=True)
-    pdf.ln(10)
-    pdf.multi_cell(0, 10, f"Análise detalhada:\n{analysis}")
-    pdf_file = f"relatorio_{data['name']}.pdf"
-    pdf.output(pdf_file)
-    return pdf_file
-
-# Função para análise de IA
-def analyze_with_ai(data):
-    prompt = f"""
-    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
-    - Nome: {data['name']}
-    - Idade: {data['age']}
-    - Gênero: {data['gender']}
-    - Crimes Anteriores: {data.get('previous_crimes', 'Não informado')}
-    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
-    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
-    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
-    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
-    
-    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
+# Função para análise de IA usando Hugging Face
+def analyze_with_hugging_face(data):
+    model = pipeline("text-classification", model="distilbert-base-uncased-finetuned-sst-2-english")
+    input_text = f"""
+    Nome: {data['name']}
+    Idade: {data['age']}
+    Gênero: {data['gender']}
+    Crimes Anteriores: {data.get('previous_crimes', 'Não informado')}
     """
-    response = text_generator(prompt, max_length=500)
-    return response[0]['generated_text']
+    result = model(input_text[:512])  # Limitar a 512 caracteres
+    return result
 
 @app.route("/", methods=["GET"])
 def index():
@@ -79,18 +49,16 @@ def analyze():
         if not data:
             return jsonify({"message": "Nenhum dado fornecido."}), 400
 
-        # Análise com IA
-        analysis = analyze_with_ai(data)
-        risk_score = 50  # Exemplo de pontuação fixa (ajustável conforme necessário)
+        # Análise com Hugging Face
+        analysis = analyze_with_hugging_face(data)
 
-        # Gerar PDF
-        pdf_file = generate_pdf(data, risk_score, analysis)
+        # Gerar uma resposta fictícia de risco (por enquanto)
+        risk_score = 50  # Ajuste conforme necessário
 
         return jsonify({
             "name": data['name'],
             "risk_score": risk_score,
             "ai_analysis": analysis,
-            "pdf_report": pdf_file
         })
     except Exception as e:
         return jsonify({"message": f"Erro inesperado: {str(e)}"}), 500

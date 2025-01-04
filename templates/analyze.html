@@ -1,92 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Risco</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            width: 50%;
-            margin: auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <h1>Formulário de Análise de Risco</h1>
-    <form method="POST" action="/analyze">
-        <label for="name">Nome:</label>
-        <input type="text" id="name" name="name" placeholder="Digite o nome" required>
+from transformers import pipeline
 
-        <label for="age">Idade:</label>
-        <input type="number" id="age" name="age" placeholder="Digite a idade" required>
+def analyze_with_ai(data):
+    # Inicializa o pipeline com um modelo pré-treinado
+    generator = pipeline('text-generation', model='gpt2')
+    
+    # Define o prompt com as informações fornecidas
+    prompt = f"""
+    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
+    - Nome: {data['name']}
+    - Idade: {data['age']}
+    - Gênero: {data['gender']}
+    - Crimes Anteriores: {data.get('previous_crimes', 'Não informado')}
+    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
+    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
+    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
+    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
 
-        <label for="gender">Gênero:</label>
-        <select id="gender" name="gender" required>
-            <option value="">Selecione</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Feminino">Feminino</option>
-            <option value="Outro">Outro</option>
-        </select>
-
-        <label for="nationality">Nacionalidade:</label>
-        <input type="text" id="nationality" name="nationality" placeholder="Digite a nacionalidade" required>
-
-        <label for="previous_crimes">Crimes Anteriores:</label>
-        <input type="number" id="previous_crimes" name="previous_crimes" placeholder="Digite o número de crimes anteriores" required>
-
-        <label for="sociological_factors">Fatores Sociológicos:</label>
-        <textarea id="sociological_factors" name="sociological_factors" placeholder="Descreva os fatores sociológicos (opcional)"></textarea>
-
-        <label for="psychological_factors">Fatores Psicológicos:</label>
-        <textarea id="psychological_factors" name="psychological_factors" placeholder="Descreva os fatores psicológicos (opcional)"></textarea>
-
-        <label for="cultural_factors">Fatores Culturais:</label>
-        <textarea id="cultural_factors" name="cultural_factors" placeholder="Descreva os fatores culturais (opcional)"></textarea>
-
-        <label for="individual_factors">Fatores Individuais:</label>
-        <textarea id="individual_factors" name="individual_factors" placeholder="Descreva os fatores individuais (opcional)"></textarea>
-
-        <label for="criminal_factors">Fatores Criminais:</label>
-        <textarea id="criminal_factors" name="criminal_factors" placeholder="Descreva os fatores criminais (opcional)"></textarea>
-
-        <button type="submit">Enviar</button>
-    </form>
-</body>
-</html>
+    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
+    """
+    
+    # Gera a análise com base no prompt
+    response = generator(prompt, max_length=500)
+    return response[0]['generated_text'].strip()

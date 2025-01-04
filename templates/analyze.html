@@ -1,24 +1,32 @@
-from transformers import pipeline
 
-def analyze_with_ai(data):
-    # Inicializa o pipeline com um modelo pré-treinado
-    generator = pipeline('text-generation', model='gpt2')
-    
-    # Define o prompt com as informações fornecidas
-    prompt = f"""
-    Baseado nos fatores fornecidos, analise o risco de reincidência criminal:
-    - Nome: {data['name']}
-    - Idade: {data['age']}
-    - Gênero: {data['gender']}
-    - Crimes Anteriores: {data.get('previous_crimes', 'Não informado')}
-    - Fatores Sociológicos: {data.get('sociological_factors', 'Não fornecido')}
-    - Fatores Psicológicos: {data.get('psychological_factors', 'Não fornecido')}
-    - Fatores Culturais: {data.get('cultural_factors', 'Não fornecido')}
-    - Fatores Individuais: {data.get('individual_factors', 'Não fornecido')}
-
-    Gere uma pontuação de risco entre 0 e 100 e justifique os fatores que contribuíram para essa pontuação.
-    """
-    
-    # Gera a análise com base no prompt
-    response = generator(prompt, max_length=500)
-    return response[0]['generated_text'].strip()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Análise</title>
+</head>
+<body>
+    <h1>Resultado da Análise de Risco</h1>
+    <p id="result"></p>
+    <script>
+        async function getResult() {
+            const response = await fetch("/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: "Exemplo",
+                    age: 30,
+                    gender: "Masculino",
+                    previous_crimes: "Nenhum"
+                })
+            });
+            const data = await response.json();
+            document.getElementById("result").innerText = JSON.stringify(data);
+        }
+        getResult();
+    </script>
+</body>
+</html>
